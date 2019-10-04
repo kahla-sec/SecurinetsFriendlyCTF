@@ -18,51 +18,45 @@ the key to to solve this task is to know that usually ICMP packets with the same
 
 I wrote this small script using the famous Scapy library in python for packet crafting (you can read about it [HERE](https://scapy.net/))
 
-`#EXTRACT RAW FLAG`
+```python 
 
-`def extract_flag():`
+from scapy.all import *
+#EXTRACT RAW FLAG
+def extract_flag():
+    flag=""
+    packets=rdpcap("hard.pcap")
+    for pckt in packets :
+        if pckt.haslayer(scapy.all.ICMP) :
+            if pckt[scapy.all.ICMP].type==0:
+                try:
+                    flag+=chr(pckt[scapy.all.ICMP].id)
+                except ValueError:
+                    continue    
+    return flag            
+#MAIN
+raw_flag=extract_flag()
+print("[+]Found Raw Flaaaaaaag : "+raw_flag)
 
-    `flag=""`
-
-    `packets=rdpcap("hard.pcap")`
-
-    `for pckt in packets :`
-
-        `if pckt.haslayer(scapy.all.ICMP) :`
-
-            `if pckt[scapy.all.ICMP].type==0:`
-
-                `try:`
-
-                    `flag+=chr(pckt[scapy.all.ICMP].id)`
-
-                `except ValueError:`
-
-                    `continue    `
-
-    `return flag            `
-
-
-`#MAIN`
-
-`raw_flag=extract_flag()    `
-
-`print("[+]Found Raw Flaaaaaaag : "+raw_flag)`
+```
 
 This script read the pcap file and extract the id of ICMP packets type 0, just to mention that if you don't include the ICMP type test you will face some problems because of the 'Malformed Packets' that appear in the wireshark capture, in fact the ICMP have several types and here only the type 0 (Echo-Reply) have an ASCII code in their IDs . We run the script and **BINGO** we got this 
 
-`Securinets{DASHDASH DOTDOT DASHDOTDOTDASH DOTDOT DASHDOT DASHDASHDOT DASHDOTDOTDOTDOTDASH DASHDASH DASHDASHDASH DOTDASHDOT DOTDOTDOT DOT DASHDOTDOTDOTDOTDASH DOTDASHDASH DOTDOT DASH DOTDOTDOTDOT DASHDOTDOTDOTDOTDASH DASHDOT DOT DASH DOTDASHDASH DASHDASHDASH DOTDASHDOT DASHDOTDASH}`
+```python
+
+Securinets{DASHDASH DOTDOT DASHDOTDOTDASH DOTDOT DASHDOT DASHDASHDOT DASHDOTDOTDOTDOTDASH DASHDASH DASHDASHDASH DOTDASHDOT DOTDOTDOT DOT DASHDOTDOTDOTDOTDASH DOTDASHDASH DOTDOT DASH DOTDOTDOTDOT DASHDOTDOTDOTDOTDASH DASHDOT DOT DASH DOTDASHDASH DASHDASHDASH DOTDASHDOT DASHDOTDASH}
+
+```
 
 We can rapidly notice that these "Dash" and "DOT" are some Morse code so we add these two lines to our script in order to replace "DASH" ==>"-" and "DOT"==>"."
 
-`#REPLACING DOT and DASH`
+```python
 
-`flag=raw_flag.replace("DOT",".")`
+#REPLACING DOT and DASH
+flag=raw_flag.replace("DOT",".")
+flag=flag.replace("DASH","-")
+print("[+]Found PreeeFlaag "+flag)
 
-`flag=flag.replace("DASH","-")`
-
-`print("[+]Found PreeeFlaag "+flag)`
-
+```
 Now we got this 
 
 `Securinets{-- .. -..- .. -. --. -....- -- --- .-. ... . -....- .-- .. - .... -....- -. . - .-- --- .-. -.-}`
